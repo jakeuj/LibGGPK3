@@ -111,11 +111,12 @@ public class Index : IDisposable {
 					ThrowHelper.Throw<NullReferenceException>("A file has null or empty path, the Index may be broken");
 				continue;
 			}
-			var splittedPath = f.Path.AsSpan().Split('/');
+			var pathSpan = f.Path.AsSpan();
+			var splittedPath = pathSpan.Split('/');
 			var parent = root;
 			if (splittedPath.MoveNext())
 				while (true) {
-					var name = splittedPath.Current;
+					var name = pathSpan[splittedPath.Current];
 					if (!splittedPath.MoveNext()) // Last one is the file name
 						break;
 					if (parent.Children.Count <= 0 || parent.Children[^1] is not IDirectoryNode dr || !name.SequenceEqual(dr.Name))
@@ -349,7 +350,10 @@ public class Index : IDisposable {
 			node = root;
 			return true;
 		}
-		foreach (var name in path.TrimEnd('/').Split('/')) {
+		var trimmedPath = path.TrimEnd('/');
+		var splitter = trimmedPath.Split('/');
+		while (splitter.MoveNext()) {
+			var name = trimmedPath[splitter.Current];
 			var next = root[name];
 			if (next is not DirectoryNode dn)
 				return (node = next) is not null;
