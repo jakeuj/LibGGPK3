@@ -22,7 +22,8 @@ jobs:
 
       - name: Checkout OodleUE (sparse - only macOS lib)
         run: |
-          git -c submodule."External/OodleUE".update=none submodule update --init External/OodleUE
+          git clone --depth 1 --filter=blob:none --no-checkout \
+            https://github.com/WorkingRobot/OodleUE.git External/OodleUE
           cd External/OodleUE
           git sparse-checkout init --cone
           git sparse-checkout set Engine/Source/Runtime/OodleDataCompression/Sdks/2.9.14/lib/Mac
