@@ -1,7 +1,11 @@
 <Project>
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
-		<Version>2.7.5</Version>
+<<<<<<< HEAD
+		<Version>2.6.11-fork.1</Version>
+=======
+		<Version>2.6.11-fork.1</Version>
+>>>>>>> 5e2623f (🔖 chore: Bump version to 2.6.11-fork.1)
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<CheckForOverflowUnderflow Condition="$(Configuration) == 'Debug'">true</CheckForOverflowUnderflow>
