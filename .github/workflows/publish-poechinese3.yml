@@ -46,8 +46,24 @@ jobs:
           mkdir -p "${APP_BUNDLE}/Contents/MacOS"
           mkdir -p "${APP_BUNDLE}/Contents/Resources"
           
-          # Move executable
-          mv publish/bin/PoeChinese3 "${APP_BUNDLE}/Contents/MacOS/"
+          # Move executable to Resources
+          mv publish/bin/PoeChinese3 "${APP_BUNDLE}/Contents/Resources/"
+          chmod +x "${APP_BUNDLE}/Contents/Resources/PoeChinese3"
+          
+          # Create launcher script that opens Terminal
+          cat > "${APP_BUNDLE}/Contents/MacOS/PoeChinese3" << 'LAUNCHER'
+          #!/bin/bash
+          SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+          RESOURCES_DIR="$(dirname "$SCRIPT_DIR")/Resources"
+          EXECUTABLE="${RESOURCES_DIR}/PoeChinese3"
+          
+          osascript <<APPLESCRIPT
+          tell application "Terminal"
+            activate
+            do script "cd ~ && '${EXECUTABLE}'; echo ''; echo '按 Enter 關閉視窗...'; read; exit"
+          end tell
+          APPLESCRIPT
+          LAUNCHER
           chmod +x "${APP_BUNDLE}/Contents/MacOS/PoeChinese3"
           
           # Create Info.plist
@@ -76,6 +92,8 @@ jobs:
             <true/>
             <key>LSApplicationCategoryType</key>
             <string>public.app-category.utilities</string>
+            <key>NSAppleEventsUsageDescription</key>
+            <string>PoeChinese3 needs to open Terminal to run.</string>
           </dict>
           </plist>
           PLIST
@@ -102,6 +120,11 @@ jobs:
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
+          # Sign the actual executable first
+          codesign --force --options runtime --sign "Developer ID Application: CHEN YUANYOU ($APPLE_TEAM_ID)" \
+            publish/PoeChinese3.app/Contents/Resources/PoeChinese3
+          
+          # Sign the entire .app bundle
           codesign --force --options runtime --deep --sign "Developer ID Application: CHEN YUANYOU ($APPLE_TEAM_ID)" \
             publish/PoeChinese3.app
 
