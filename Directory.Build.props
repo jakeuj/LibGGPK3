@@ -1,9 +1,9 @@
 <Project>
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
-		<Version>2.6.11-fork.7</Version>
-		<AssemblyVersion>2.6.11.7</AssemblyVersion>
-		<FileVersion>2.6.11.7</FileVersion>
+		<Version>2.6.11-fork.8</Version>
+		<AssemblyVersion>2.6.11.8</AssemblyVersion>
+		<FileVersion>2.6.11.8</FileVersion>
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<CheckForOverflowUnderflow Condition="$(Configuration) == 'Debug'">true</CheckForOverflowUnderflow>
