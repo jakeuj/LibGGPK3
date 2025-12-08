@@ -152,9 +152,10 @@ public class DirectoryRecord : TreeNode, IReadOnlyList<TreeNode> {
 		}
 
 		var dir = this;
-		var et = SpanExtensions.Split(path, '/');
+		var et = path.Split('/');
 		while (et.MoveNext()) {
-			var next = dir[et.Current];
+			var name = path[et.Current];
+			var next = dir[name];
 			dir = (next as DirectoryRecord)!;
 			if (dir is null)
 				if (et.MoveNext()) {
@@ -183,9 +184,12 @@ public class DirectoryRecord : TreeNode, IReadOnlyList<TreeNode> {
 
 		var dir = this;
 		var added = false;
-		foreach (var name in SpanExtensions.Split(path, '/'))
-			if (dir.AddDirectory(new(name), out dir)) // Add directory if not found
+		var splitter = path.Split('/');
+		while (splitter.MoveNext()) {
+			var name = path[splitter.Current];
+			if (dir.AddDirectory(new string(name), out dir)) // Add directory if not found
 				added = true;
+		}
 		record = dir;
 		return added;
 	}
@@ -201,7 +205,11 @@ public class DirectoryRecord : TreeNode, IReadOnlyList<TreeNode> {
 	/// <returns><see langword="true"/> if added a new file, <see langword="false"/> if found.</returns>
 	public bool FindOrAddFile(scoped ReadOnlySpan<char> path, out FileRecord record, int preallocatedSize = 0) {
 		ArgumentOutOfRangeException.ThrowIfNegative(preallocatedSize);
+<<<<<<< HEAD
 		if (path.IsEmpty || SpanExtensions.EndsWith(path, '/'))
+=======
+		if (path.IsEmpty || MemoryExtensions.EndsWith(path, "/"))
+>>>>>>> f8dcb03 (✨ feat: Upgrade target framework to .NET 10.0 and update related code)
 			ThrowHelper.Throw<ArgumentException>("File name cannot be empty", nameof(path));
 
 		var dir = this;
