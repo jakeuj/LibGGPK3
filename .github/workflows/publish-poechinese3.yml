@@ -17,12 +17,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          submodules: false
 
       - name: Checkout OodleUE (sparse - only macOS lib)
         run: |
+          # Initialize submodule without checkout
+          git submodule update --init --no-checkout External/OodleUE
+          
+          # Enter submodule and configure sparse-checkout
+          cd External/OodleUE
           git sparse-checkout init --cone
-          git sparse-checkout set External/OodleUE/Engine/Source/Runtime/OodleDataCompression/Sdks/2.9.14/lib/Mac
-          git submodule update --init External/OodleUE
+          git sparse-checkout set Engine/Source/Runtime/OodleDataCompression/Sdks/2.9.14/lib/Mac
+          
+          # Checkout with sparse-checkout config (only fetch needed files)
+          git checkout
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
