@@ -18,20 +18,20 @@
 		<OodleDistribPath>$(MSBuildThisFileDirectory)External/OodleUE/Engine/Source/Programs/Shared/EpicGames.Oodle/Sdk/2.9.10</OodleDistribPath>
 	</PropertyGroup>
 
-	<!-- Copy Oodle native library to output directory based on platform (only for executable projects) -->
-	<ItemGroup Condition="$([MSBuild]::IsOSPlatform('OSX')) AND '$(OutputType)' == 'Exe'">
+	<!-- Copy Oodle native library to output directory based on platform (only for executable projects, not for NativeAOT) -->
+	<ItemGroup Condition="$([MSBuild]::IsOSPlatform('OSX')) AND '$(OutputType)' == 'Exe' AND '$(PublishAOT)' != 'true'">
 		<None Include="$(OodleBasePath)/Mac/liboo2coremac64.2.9.14.dylib" Link="liboo2core.dylib">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<Visible>false</Visible>
 		</None>
 	</ItemGroup>
-	<ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux')) AND '$(OutputType)' == 'Exe'">
+	<ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux')) AND '$(OutputType)' == 'Exe' AND '$(PublishAOT)' != 'true'">
 		<None Include="$(OodleBasePath)/Linux/liboo2corelinux64.so.9" Link="liboo2core.so">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<Visible>false</Visible>
 		</None>
 	</ItemGroup>
-	<ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows')) AND '$(OutputType)' == 'Exe'">
+	<ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows')) AND '$(OutputType)' == 'Exe' AND '$(PublishAOT)' != 'true'">
 		<None Include="$(OodleDistribPath)/win/redist/oo2core_9_win64.dll" Link="oo2core.dll">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<Visible>false</Visible>
