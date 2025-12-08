@@ -352,14 +352,10 @@ public class Index : IDisposable {
 			node = root;
 			return true;
 		}
-<<<<<<< HEAD
-		foreach (var name in SpanExtensions.Split(path.TrimEnd('/'), '/')) {
-=======
 		var trimmedPath = path.TrimEnd('/');
 		var splitter = trimmedPath.Split('/');
 		while (splitter.MoveNext()) {
 			var name = trimmedPath[splitter.Current];
->>>>>>> f8dcb03 (✨ feat: Upgrade target framework to .NET 10.0 and update related code)
 			var next = root[name];
 			if (next is not DirectoryNode dn)
 				return (node = next) is not null;

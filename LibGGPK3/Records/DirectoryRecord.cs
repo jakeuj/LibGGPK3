@@ -205,11 +205,7 @@ public class DirectoryRecord : TreeNode, IReadOnlyList<TreeNode> {
 	/// <returns><see langword="true"/> if added a new file, <see langword="false"/> if found.</returns>
 	public bool FindOrAddFile(scoped ReadOnlySpan<char> path, out FileRecord record, int preallocatedSize = 0) {
 		ArgumentOutOfRangeException.ThrowIfNegative(preallocatedSize);
-<<<<<<< HEAD
-		if (path.IsEmpty || SpanExtensions.EndsWith(path, '/'))
-=======
 		if (path.IsEmpty || MemoryExtensions.EndsWith(path, "/"))
->>>>>>> f8dcb03 (✨ feat: Upgrade target framework to .NET 10.0 and update related code)
 			ThrowHelper.Throw<ArgumentException>("File name cannot be empty", nameof(path));
 
 		var dir = this;
