@@ -1,13 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	
+
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
 	</PropertyGroup>
-	
+
 	<ItemGroup>
 		<ProjectReference Include="../../LibBundledGGPK3/LibBundledGGPK3.csproj" />
 		<Reference Include="LibDat2" />
 		<EmbeddedResource Include="DatDefinitions.json" />
 	</ItemGroup>
-	
+
+	<Import Project="../NativeAOT.props" Condition="'$(PublishAOT)' == 'true'" />
+
 </Project>
