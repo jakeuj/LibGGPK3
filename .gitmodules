@@ -1,3 +1,4 @@
 [submodule "External/OodleUE"]
 	path = External/OodleUE
 	url = https://github.com/WorkingRobot/OodleUE.git
+	shallow = true
