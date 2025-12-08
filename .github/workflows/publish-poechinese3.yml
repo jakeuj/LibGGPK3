@@ -35,7 +35,7 @@ jobs:
             -o publish/PoeChinese3-osx-arm64
 
       - name: Remove debug symbols
-        run: rm -rf publish/PoeChinese3-osx-arm64/*.dsym
+        run: rm -rf publish/PoeChinese3-osx-arm64/*.dSYM
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
