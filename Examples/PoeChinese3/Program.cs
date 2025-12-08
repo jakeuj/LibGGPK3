@@ -91,13 +91,15 @@ public static class Program {
 		ApplyTraditionalChinese(index);
 
 		Environment.CurrentDirectory = AppContext.BaseDirectory;
-		// Check for font files in order of priority: user-provided fonts first, then bundled font
+		// Check for font files in order of priority: user-provided fonts first, then embedded font
 		if (File.Exists("Font.ttc"))
 			ApplyFont(index, Path.GetFullPath("Font.ttc"));
 		else if (File.Exists("Font.ttf"))
 			ApplyFont(index, Path.GetFullPath("Font.ttf"));
 		else if (File.Exists("Font.otf"))
 			ApplyFont(index, Path.GetFullPath("Font.otf"));
+		else
+			ApplyEmbeddedFont(index);
 
 		// Taiwan flag
 		ApplyNationalFlag(index);
@@ -180,6 +182,55 @@ public static class Program {
 		
 		var result = $"{str[..i]}{data}{str[i..]}".Replace("Microsoft JhengHei", "Custom");
 		xml.Write(MemoryMarshal.AsBytes(result.AsSpan()));
+	}
+
+	public static void ApplyEmbeddedFont(Index index) {
+		Console.WriteLine("Applying embedded font (Source Han Sans TW) . . .");
+		var assembly = Assembly.GetExecutingAssembly();
+		using var stream = assembly.GetManifestResourceStream("PoeChinese3.EmbeddedFont.otf");
+		if (stream == null) {
+			var color = Console.ForegroundColor;
+			Console.ForegroundColor = ConsoleColor.Yellow;
+			Console.WriteLine("Warning: Embedded font not found");
+			Console.WriteLine("警告: 找不到嵌入的字型資源");
+			Console.ForegroundColor = color;
+			return;
+		}
+
+		if (!index.TryGetFile("Art/2DArt/Fonts/Koruri-Regular.ttf", out var font)) {
+			var color = Console.ForegroundColor;
+			Console.ForegroundColor = ConsoleColor.Yellow;
+			Console.WriteLine("Warning: Cannot find file: Art/2DArt/Fonts/Koruri-Regular.ttf");
+			Console.WriteLine("The font won't be replaced");
+			Console.WriteLine("警告: GGPK/Index中找不到 Art/2DArt/Fonts/Koruri-Regular.ttf，字型將不會套用");
+			Console.ForegroundColor = color;
+			return;
+		}
+		if (!index.TryGetFile("Metadata/UI/UISettings.Traditional Chinese.xml", out var xml)) {
+			var color = Console.ForegroundColor;
+			Console.ForegroundColor = ConsoleColor.Yellow;
+			Console.WriteLine("Warning: Cannot find file: Metadata/UI/UISettings.Traditional Chinese.xml");
+			Console.WriteLine("The font won't be replaced");
+			Console.WriteLine("警告: GGPK/Index中找不到 Metadata/UI/UISettings.Traditional Chinese.xml，字型將不會套用");
+			Console.ForegroundColor = color;
+			return;
+		}
+
+		using var ms = new MemoryStream();
+		stream.CopyTo(ms);
+		var b = ms.ToArray();
+		if (font.Size != b.Length || !font.Read().Span.SequenceEqual(b)) // not yet applied
+			font.Write(b);
+
+		var str = MemoryMarshal.Cast<byte, char>(xml.Read().Span);
+		var i = str.IndexOf("\">\r\n") + 4;
+		if (str[i..].StartsWith("\t<!-- Added by aianlinb -->"))
+			return; // already applied
+		const string data = "\t<!-- Added by aianlinb -->\r\n"
+			+ "\t<InstalledFont id=\"Custom\" typeface=\"Custom\" value=\"Art/2DArt/Fonts/Koruri-Regular.ttf\"/>\r\n";
+
+		var resultStr = $"{str[..i]}{data}{str[i..]}".Replace("Microsoft JhengHei", "Custom");
+		xml.Write(MemoryMarshal.AsBytes(resultStr.AsSpan()));
 	}
 
 	public static void ApplyNationalFlag(Index index) {
