@@ -21,8 +21,12 @@ jobs:
           submodules: false
 
       - name: Checkout OodleUE (sparse - only macOS lib)
+        shell: bash
         run: |
-          git submodule update --init --no-checkout External/OodleUE
+          set -e
+          git submodule init External/OodleUE
+          git config -f .gitmodules submodule.External/OodleUE.update none
+          git submodule update --no-checkout External/OodleUE
           cd External/OodleUE
           git sparse-checkout init --cone
           git sparse-checkout set Engine/Source/Runtime/OodleDataCompression/Sdks/2.9.14/lib/Mac
