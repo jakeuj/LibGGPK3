@@ -32,68 +32,108 @@ jobs:
             -r osx-arm64 \
             --self-contained \
             -p:PublishAOT=true \
-            -o publish/PoeChinese3-osx-arm64
+            -o publish/bin
 
       - name: Remove debug symbols
-        run: rm -rf publish/PoeChinese3-osx-arm64/*.dSYM
+        run: rm -rf publish/bin/*.dSYM
+
+      - name: Create .app bundle
+        run: |
+          APP_NAME="PoeChinese3"
+          APP_BUNDLE="publish/${APP_NAME}.app"
+          
+          # Create directory structure
+          mkdir -p "${APP_BUNDLE}/Contents/MacOS"
+          mkdir -p "${APP_BUNDLE}/Contents/Resources"
+          
+          # Move executable
+          mv publish/bin/PoeChinese3 "${APP_BUNDLE}/Contents/MacOS/"
+          chmod +x "${APP_BUNDLE}/Contents/MacOS/PoeChinese3"
+          
+          # Create Info.plist
+          cat > "${APP_BUNDLE}/Contents/Info.plist" << 'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>CFBundleExecutable</key>
+            <string>PoeChinese3</string>
+            <key>CFBundleIdentifier</key>
+            <string>com.chenyuanyou.poechinese3</string>
+            <key>CFBundleName</key>
+            <string>PoeChinese3</string>
+            <key>CFBundleDisplayName</key>
+            <string>PoE Chinese 3</string>
+            <key>CFBundleVersion</key>
+            <string>1.0</string>
+            <key>CFBundleShortVersionString</key>
+            <string>1.0</string>
+            <key>CFBundlePackageType</key>
+            <string>APPL</string>
+            <key>LSMinimumSystemVersion</key>
+            <string>11.0</string>
+            <key>NSHighResolutionCapable</key>
+            <true/>
+            <key>LSApplicationCategoryType</key>
+            <string>public.app-category.utilities</string>
+          </dict>
+          </plist>
+          PLIST
 
       - name: Import Apple certificate
         env:
           APPLE_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
         run: |
-          # Create temporary keychain
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
           KEYCHAIN_PASSWORD=$(openssl rand -base64 32)
           
-          # Decode certificate
           echo "$APPLE_CERTIFICATE_BASE64" | base64 --decode > $RUNNER_TEMP/certificate.p12
           
-          # Create and configure keychain
           security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           
-          # Import certificate
           security import $RUNNER_TEMP/certificate.p12 -P "$APPLE_CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
 
-      - name: Code sign
+      - name: Code sign .app bundle
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
-          codesign --force --options runtime --sign "Developer ID Application: CHEN YUANYOU ($APPLE_TEAM_ID)" \
-            publish/PoeChinese3-osx-arm64/PoeChinese3
+          codesign --force --options runtime --deep --sign "Developer ID Application: CHEN YUANYOU ($APPLE_TEAM_ID)" \
+            publish/PoeChinese3.app
 
-      - name: Notarize
+      - name: Notarize .app bundle
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
           # Create ZIP for notarization
-          cd publish/PoeChinese3-osx-arm64
-          zip -r ../../PoeChinese3-notarize.zip PoeChinese3
-          cd ../..
+          ditto -c -k --keepParent publish/PoeChinese3.app PoeChinese3-notarize.zip
           
-          # Submit for notarization
+          # Submit for notarization and wait
           xcrun notarytool submit PoeChinese3-notarize.zip \
             --apple-id "$APPLE_ID" \
             --password "$APPLE_ID_PASSWORD" \
             --team-id "$APPLE_TEAM_ID" \
             --wait
+          
+          # Staple the notarization ticket to the app
+          xcrun stapler staple publish/PoeChinese3.app
 
-      - name: Set executable permission and create archive
+      - name: Create archive
         run: |
-          chmod +x publish/PoeChinese3-osx-arm64/PoeChinese3
-          tar -czvf PoeChinese3-osx-arm64.tar.gz -C publish PoeChinese3-osx-arm64
+          cd publish
+          zip -r ../PoeChinese3-osx-arm64.zip PoeChinese3.app
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: PoeChinese3-osx-arm64
-          path: PoeChinese3-osx-arm64.tar.gz
+          path: PoeChinese3-osx-arm64.zip
           retention-days: 30
 
       - name: Cleanup keychain
@@ -118,6 +158,6 @@ jobs:
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
         with:
-          files: PoeChinese3-osx-arm64.tar.gz
+          files: PoeChinese3-osx-arm64.zip
           draft: false
           prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') }}
