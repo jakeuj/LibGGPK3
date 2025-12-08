@@ -35,8 +35,40 @@ public static class Program {
 		string? path;
 		if (args.Length == 0) {
 			// 嘗試使用目前目錄的 Content.ggpk
-			var defaultPath = Path.Combine(AppContext.BaseDirectory, "Content.ggpk");
-			if (File.Exists(defaultPath)) {
+			string? defaultPath = null;
+
+			// 1. 先檢查執行檔所在目錄
+			var basePath = Path.Combine(AppContext.BaseDirectory, "Content.ggpk");
+			if (File.Exists(basePath)) {
+				defaultPath = basePath;
+			}
+
+			// 2. 檢查 .app bundle 所在目錄 (macOS)
+			// AppContext.BaseDirectory 在 .app 中會是 xxx.app/Contents/Resources/
+			// 需要往上三層找到 .app 所在目錄
+			if (defaultPath == null && AppContext.BaseDirectory.Contains(".app/Contents/")) {
+				var appBundlePath = AppContext.BaseDirectory;
+				var appIndex = appBundlePath.IndexOf(".app/Contents/", StringComparison.Ordinal);
+				if (appIndex > 0) {
+					var appDir = Path.GetDirectoryName(appBundlePath[..(appIndex + 4)]); // 取得 .app 所在目錄
+					if (appDir != null) {
+						var appDirPath = Path.Combine(appDir, "Content.ggpk");
+						if (File.Exists(appDirPath)) {
+							defaultPath = appDirPath;
+						}
+					}
+				}
+			}
+
+			// 3. 檢查目前工作目錄
+			if (defaultPath == null) {
+				var cwdPath = Path.Combine(Environment.CurrentDirectory, "Content.ggpk");
+				if (File.Exists(cwdPath)) {
+					defaultPath = cwdPath;
+				}
+			}
+
+			if (defaultPath != null) {
 				path = defaultPath;
 				Console.WriteLine($"使用預設路徑: {path}");
 			} else {
