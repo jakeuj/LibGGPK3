@@ -20,11 +20,9 @@ jobs:
 
       - name: Checkout OodleUE (sparse - only macOS lib)
         run: |
-          git submodule init External/OodleUE
-          cd External/OodleUE
           git sparse-checkout init --cone
-          git sparse-checkout set Engine/Source/Runtime/OodleDataCompression/Sdks/2.9.14/lib/Mac
-          git checkout
+          git sparse-checkout set External/OodleUE/Engine/Source/Runtime/OodleDataCompression/Sdks/2.9.14/lib/Mac
+          git submodule update --init External/OodleUE
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
