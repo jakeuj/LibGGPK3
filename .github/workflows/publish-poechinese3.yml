@@ -37,11 +37,16 @@ jobs:
       - name: Remove debug symbols
         run: rm -rf publish/PoeChinese3-osx-arm64/*.dSYM
 
+      - name: Set executable permission and create archive
+        run: |
+          chmod +x publish/PoeChinese3-osx-arm64/PoeChinese3
+          tar -czvf PoeChinese3-osx-arm64.tar.gz -C publish PoeChinese3-osx-arm64
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: PoeChinese3-osx-arm64
-          path: publish/PoeChinese3-osx-arm64
+          path: PoeChinese3-osx-arm64.tar.gz
           retention-days: 30
 
   release:
@@ -57,10 +62,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: PoeChinese3-osx-arm64
-          path: PoeChinese3-osx-arm64
-
-      - name: Create archive
-        run: tar -czvf PoeChinese3-osx-arm64.tar.gz PoeChinese3-osx-arm64
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
