@@ -32,11 +32,18 @@ public static class Program {
 
 		string? path;
 		if (args.Length == 0) {
-			Console.WriteLine($"請輸入檔案路徑");
-			Console.Write("Path to Content.ggpk (_.index.bin for Steam/Epic): ");
-			path = Console.ReadLine()!.Trim();
-			if (path.Length > 1 && path[0] == '"' && path[^1] == '"')
-				path = path[1..^1].Trim();
+			// 嘗試使用目前目錄的 Content.ggpk
+			var defaultPath = Path.Combine(AppContext.BaseDirectory, "Content.ggpk");
+			if (File.Exists(defaultPath)) {
+				path = defaultPath;
+				Console.WriteLine($"使用預設路徑: {path}");
+			} else {
+				Console.WriteLine($"請輸入檔案路徑");
+				Console.Write("Path to Content.ggpk (_.index.bin for Steam/Epic): ");
+				path = Console.ReadLine()!.Trim();
+				if (path.Length > 1 && path[0] == '"' && path[^1] == '"')
+					path = path[1..^1].Trim();
+			}
 			Console.WriteLine();
 		} else
 			path = args[0].Trim();
