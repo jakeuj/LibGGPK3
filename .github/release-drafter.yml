@@ -1,0 +1,98 @@
+name-template: 'v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
+
+categories:
+  - title: '🚀 新功能'
+    labels:
+      - 'feature'
+      - 'enhancement'
+  - title: '🐛 Bug 修復'
+    labels:
+      - 'bug'
+      - 'fix'
+      - 'bugfix'
+  - title: '🔧 改進'
+    labels:
+      - 'improvement'
+      - 'refactor'
+  - title: '📚 文件'
+    labels:
+      - 'documentation'
+      - 'docs'
+  - title: '🔨 維護'
+    labels:
+      - 'chore'
+      - 'maintenance'
+      - 'dependencies'
+  - title: '⚠️ 重大變更'
+    labels:
+      - 'breaking'
+      - 'breaking-change'
+
+change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
+change-title-escapes: '\<*_&'
+
+version-resolver:
+  major:
+    labels:
+      - 'major'
+      - 'breaking'
+      - 'breaking-change'
+  minor:
+    labels:
+      - 'minor'
+      - 'feature'
+      - 'enhancement'
+  patch:
+    labels:
+      - 'patch'
+      - 'bug'
+      - 'fix'
+      - 'bugfix'
+      - 'chore'
+      - 'maintenance'
+  default: patch
+
+exclude-labels:
+  - 'skip-changelog'
+  - 'no-changelog'
+
+autolabeler:
+  - label: 'documentation'
+    files:
+      - '*.md'
+      - 'docs/**/*'
+  - label: 'bug'
+    branch:
+      - '/fix\/.+/'
+      - '/bugfix\/.+/'
+    title:
+      - '/fix/i'
+      - '/bug/i'
+  - label: 'feature'
+    branch:
+      - '/feature\/.+/'
+      - '/feat\/.+/'
+    title:
+      - '/feat/i'
+      - '/feature/i'
+  - label: 'chore'
+    branch:
+      - '/chore\/.+/'
+    title:
+      - '/chore/i'
+  - label: 'dependencies'
+    files:
+      - '*.csproj'
+      - 'Directory.Build.props'
+      - 'Directory.Build.targets'
+
+template: |
+  ## 變更內容
+
+  $CHANGES
+
+  ## 貢獻者
+
+  $CONTRIBUTORS
+
