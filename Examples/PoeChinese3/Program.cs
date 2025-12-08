@@ -34,54 +34,66 @@ public static class Program {
 
 		string? path;
 		if (args.Length == 0) {
-			// 嘗試使用目前目錄的 Content.ggpk
-			string? defaultPath = null;
+		// 嘗試使用目前目錄的 Content.ggpk
+		string? defaultPath = null;
+		string? appParentDir = null;
 
-			// 1. 先檢查執行檔所在目錄
-			var basePath = Path.Combine(AppContext.BaseDirectory, "Content.ggpk");
-			if (File.Exists(basePath)) {
-				defaultPath = basePath;
-			}
+		// 1. 先檢查執行檔所在目錄
+		var basePath = Path.Combine(AppContext.BaseDirectory, "Content.ggpk");
+		if (File.Exists(basePath)) {
+			defaultPath = basePath;
+		}
 
-			// 2. 檢查 .app bundle 所在目錄 (macOS)
-			// AppContext.BaseDirectory 在 .app 中會是 xxx.app/Contents/Resources/
-			// 需要往上三層找到 .app 所在目錄
-			if (defaultPath == null && AppContext.BaseDirectory.Contains(".app/Contents/")) {
-				var appBundlePath = AppContext.BaseDirectory;
-				var appIndex = appBundlePath.IndexOf(".app/Contents/", StringComparison.Ordinal);
-				if (appIndex > 0) {
-					var appDir = Path.GetDirectoryName(appBundlePath[..(appIndex + 4)]); // 取得 .app 所在目錄
-					if (appDir != null) {
-						var appDirPath = Path.Combine(appDir, "Content.ggpk");
-						if (File.Exists(appDirPath)) {
-							defaultPath = appDirPath;
-						}
+		// 2. 檢查 .app bundle 所在目錄 (macOS)
+		// AppContext.BaseDirectory 在 .app 中會是 xxx.app/Contents/Resources/
+		// 需要往上三層找到 .app 所在目錄
+		if (defaultPath == null && AppContext.BaseDirectory.Contains(".app/Contents/")) {
+			var appBundlePath = AppContext.BaseDirectory;
+			var appIndex = appBundlePath.IndexOf(".app/Contents/", StringComparison.Ordinal);
+			if (appIndex > 0) {
+				appParentDir = Path.GetDirectoryName(appBundlePath[..(appIndex + 4)]); // 取得 .app 所在目錄
+				if (appParentDir != null) {
+					var appDirPath = Path.Combine(appParentDir, "Content.ggpk");
+					if (File.Exists(appDirPath)) {
+						defaultPath = appDirPath;
 					}
 				}
 			}
+		}
 
-			// 3. 檢查目前工作目錄
-			if (defaultPath == null) {
-				var cwdPath = Path.Combine(Environment.CurrentDirectory, "Content.ggpk");
-				if (File.Exists(cwdPath)) {
-					defaultPath = cwdPath;
-				}
+		// 3. 檢查同目錄下的 PoE.app 內部 (macOS Wineskin/Crossover)
+		if (defaultPath == null && appParentDir != null) {
+			var poeAppPath = Path.Combine(appParentDir, "PoE.app", "Contents", "SharedSupport", "prefix", "drive_c", "Program Files (x86)", "Grinding Gear Games", "Path of Exile", "Content.ggpk");
+			if (File.Exists(poeAppPath)) {
+				defaultPath = poeAppPath;
 			}
+		}
 
-			if (defaultPath != null) {
-				path = defaultPath;
-				Console.WriteLine($"使用預設路徑: {path}");
-			} else {
-				Console.WriteLine($"請輸入檔案路徑");
-				Console.Write("Path to Content.ggpk (_.index.bin for Steam/Epic): ");
-				path = Console.ReadLine()!.Trim();
-				if (path.Length > 1 && path[0] == '"' && path[^1] == '"')
-					path = path[1..^1].Trim();
+		// 4. 檢查目前工作目錄
+		if (defaultPath == null) {
+			var cwdPath = Path.Combine(Environment.CurrentDirectory, "Content.ggpk");
+			if (File.Exists(cwdPath)) {
+				defaultPath = cwdPath;
 			}
-			Console.WriteLine();
-		} else
-			path = args[0].Trim();
-		if (!File.Exists(Utils.ExpandPath(path))) {
+		}
+
+		if (defaultPath != null) {
+			path = defaultPath;
+			Console.WriteLine($"使用預設路徑: {path}");
+		} else {
+			Console.WriteLine($"請輸入檔案路徑");
+			Console.Write("Path to Content.ggpk (_.index.bin for Steam/Epic): ");
+			path = Console.ReadLine()!.Trim();
+			if (path.Length > 1 && ((path[0] == '"' && path[^1] == '"') || (path[0] == '\'' && path[^1] == '\'')))
+				path = path[1..^1].Trim();
+		}
+		Console.WriteLine();
+	} else {
+		path = args[0].Trim();
+		if (path.Length > 1 && ((path[0] == '"' && path[^1] == '"') || (path[0] == '\'' && path[^1] == '\'')))
+			path = path[1..^1].Trim();
+	}
+	if (!File.Exists(Utils.ExpandPath(path))) {
 			Console.WriteLine("檔案不存在 (File not found): " + path);
 			Console.WriteLine();
 			Console.WriteLine("Enter to exit . . .");
