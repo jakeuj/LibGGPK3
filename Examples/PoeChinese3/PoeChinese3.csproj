@@ -8,6 +8,8 @@
 		<ProjectReference Include="../../LibBundledGGPK3/LibBundledGGPK3.csproj" />
 		<Reference Include="LibDat2" />
 		<EmbeddedResource Include="DatDefinitions.json" />
+		<!-- 嵌入思源黑體字型 (SIL OFL 1.1 licensed) -->
+		<EmbeddedResource Include="../../External/Fonts/SourceHanSansTW-Regular.otf" LogicalName="PoeChinese3.EmbeddedFont.otf" />
 	</ItemGroup>
 
 	<Import Project="../NativeAOT.props" Condition="'$(PublishAOT)' == 'true'" />
