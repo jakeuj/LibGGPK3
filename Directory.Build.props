@@ -36,4 +36,15 @@
 			<Visible>false</Visible>
 		</None>
 	</ItemGroup>
+
+	<!-- Copy Source Han Sans font for PoeChinese3 (SIL OFL 1.1 licensed) -->
+	<PropertyGroup>
+		<FontPath>$(MSBuildThisFileDirectory)External/Fonts/SourceHanSansTW-Regular.otf</FontPath>
+	</PropertyGroup>
+	<ItemGroup Condition="'$(MSBuildProjectName)' == 'PoeChinese3' AND Exists('$(FontPath)')">
+		<None Include="$(FontPath)" Link="Font.otf">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<Visible>false</Visible>
+		</None>
+	</ItemGroup>
 </Project>

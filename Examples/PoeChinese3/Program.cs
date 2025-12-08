@@ -84,11 +84,14 @@ public static class Program {
 		ApplyTraditionalChinese(index);
 
 		Environment.CurrentDirectory = AppContext.BaseDirectory;
+		// Check for font files in order of priority: user-provided fonts first, then bundled font
 		if (File.Exists("Font.ttc"))
 			ApplyFont(index, Path.GetFullPath("Font.ttc"));
 		else if (File.Exists("Font.ttf"))
 			ApplyFont(index, Path.GetFullPath("Font.ttf"));
-		
+		else if (File.Exists("Font.otf"))
+			ApplyFont(index, Path.GetFullPath("Font.otf"));
+
 		// Taiwan flag
 		ApplyNationalFlag(index);
 
