@@ -13,5 +13,28 @@
 		<OutDir>$(BaseOutputPath)$(Configuration)/</OutDir>
 		<NoWarn>1573;1591</NoWarn>
 		<PathMap>$(MSBuildProjectDirectory)=$(MSBuildProjectName)</PathMap>
+		<!-- Oodle library paths from OodleUE submodule -->
+		<OodleBasePath>$(MSBuildThisFileDirectory)External/OodleUE/Engine/Source/Runtime/OodleDataCompression/Sdks/2.9.14/lib</OodleBasePath>
+		<OodleDistribPath>$(MSBuildThisFileDirectory)External/OodleUE/Engine/Source/Programs/Shared/EpicGames.Oodle/Sdk/2.9.10</OodleDistribPath>
 	</PropertyGroup>
+
+	<!-- Copy Oodle native library to output directory based on platform (only for executable projects) -->
+	<ItemGroup Condition="$([MSBuild]::IsOSPlatform('OSX')) AND '$(OutputType)' == 'Exe'">
+		<None Include="$(OodleBasePath)/Mac/liboo2coremac64.2.9.14.dylib" Link="liboo2core.dylib">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<Visible>false</Visible>
+		</None>
+	</ItemGroup>
+	<ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux')) AND '$(OutputType)' == 'Exe'">
+		<None Include="$(OodleBasePath)/Linux/liboo2corelinux64.so.9" Link="liboo2core.so">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<Visible>false</Visible>
+		</None>
+	</ItemGroup>
+	<ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows')) AND '$(OutputType)' == 'Exe'">
+		<None Include="$(OodleDistribPath)/win/redist/oo2core_9_win64.dll" Link="oo2core.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<Visible>false</Visible>
+		</None>
+	</ItemGroup>
 </Project>
