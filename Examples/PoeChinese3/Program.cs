@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -15,6 +16,9 @@ using Index = LibBundle3.Index;
 
 namespace PoeChinese3;
 public static class Program {
+	private const string DefaultWindowsGgpkPath = @"C:\Program Files (x86)\Grinding Gear Games\Path of Exile\Content.ggpk";
+	private static readonly string ConfigDirectory = GetConfigDirectory();
+	private static readonly string LastPathFile = Path.Combine(ConfigDirectory, "lastpath.txt");
 	public static void Main(string[] args) {
 #if !DEBUG
 		try {
@@ -32,74 +36,45 @@ public static class Program {
 		using (var definitions = assembly.GetManifestResourceStream("PoeChinese3.DatDefinitions.json")!)
 			DatContainer.ReloadDefinitions(definitions);
 
-		string? path;
-		if (args.Length == 0) {
-		// 嘗試使用目前目錄的 Content.ggpk
-		string? defaultPath = null;
-		string? appParentDir = null;
+		var (path, useDefaultFlag) = ParseArguments(args);
+		var pathProvidedViaArgs = path is not null;
+		if (path is null) {
+			// Args 未指定路徑，開始互動式流程
+			var rememberedPath = TryLoadLastPath();
+			if (useDefaultFlag) {
+				path = rememberedPath ?? TryAutoDetectDefaultPath() ?? DefaultWindowsGgpkPath;
+				if (string.IsNullOrWhiteSpace(path) || !File.Exists(Utils.ExpandPath(path))) {
+					Console.WriteLine("找不到預設路徑，請改用手動輸入。");
+					path = PromptForPath(DefaultWindowsGgpkPath);
+				} else {
+					Console.WriteLine($"使用預設路徑: {path}");
+				}
+			} else {
+				path = rememberedPath;
+				if (path is null)
+					path = TryAutoDetectDefaultPath();
 
-		// 1. 先檢查執行檔所在目錄
-		var basePath = Path.Combine(AppContext.BaseDirectory, "Content.ggpk");
-		if (File.Exists(basePath)) {
-			defaultPath = basePath;
-		}
-
-		// 2. 檢查 .app bundle 所在目錄 (macOS)
-		// AppContext.BaseDirectory 在 .app 中會是 xxx.app/Contents/Resources/
-		// 需要往上三層找到 .app 所在目錄
-		if (defaultPath == null && AppContext.BaseDirectory.Contains(".app/Contents/")) {
-			var appBundlePath = AppContext.BaseDirectory;
-			var appIndex = appBundlePath.IndexOf(".app/Contents/", StringComparison.Ordinal);
-			if (appIndex > 0) {
-				appParentDir = Path.GetDirectoryName(appBundlePath[..(appIndex + 4)]); // 取得 .app 所在目錄
-				if (appParentDir != null) {
-					var appDirPath = Path.Combine(appParentDir, "Content.ggpk");
-					if (File.Exists(appDirPath)) {
-						defaultPath = appDirPath;
-					}
+				if (path != null) {
+					Console.WriteLine($"使用預設路徑: {path}");
+				} else {
+					path = PromptForPath(DefaultWindowsGgpkPath);
 				}
 			}
 		}
 
-		// 3. 檢查同目錄下的 PoE.app 內部 (macOS Wineskin/Crossover)
-		if (defaultPath == null && appParentDir != null) {
-			var poeAppPath = Path.Combine(appParentDir, "PoE.app", "Contents", "SharedSupport", "prefix", "drive_c", "Program Files (x86)", "Grinding Gear Games", "Path of Exile", "Content.ggpk");
-			if (File.Exists(poeAppPath)) {
-				defaultPath = poeAppPath;
-			}
-		}
-
-		// 4. 檢查目前工作目錄
-		if (defaultPath == null) {
-			var cwdPath = Path.Combine(Environment.CurrentDirectory, "Content.ggpk");
-			if (File.Exists(cwdPath)) {
-				defaultPath = cwdPath;
-			}
-		}
-
-		if (defaultPath != null) {
-			path = defaultPath;
-			Console.WriteLine($"使用預設路徑: {path}");
-		} else {
-			Console.WriteLine($"請輸入檔案路徑");
-			Console.Write("Path to Content.ggpk (_.index.bin for Steam/Epic): ");
-			path = Console.ReadLine()!.Trim();
-			if (path.Length > 1 && ((path[0] == '"' && path[^1] == '"') || (path[0] == '\'' && path[^1] == '\'')))
-				path = path[1..^1].Trim();
-		}
-		Console.WriteLine();
-	} else {
-		path = args[0].Trim();
-		if (path.Length > 1 && ((path[0] == '"' && path[^1] == '"') || (path[0] == '\'' && path[^1] == '\'')))
-			path = path[1..^1].Trim();
-	}
-	if (!File.Exists(Utils.ExpandPath(path))) {
+		path = TrimAndExpand(path);
+		if (path is null || !File.Exists(path)) {
 			Console.WriteLine("檔案不存在 (File not found): " + path);
 			Console.WriteLine();
 			Console.WriteLine("Enter to exit . . .");
 			Console.ReadLine();
 			return;
 		}
+
+		SaveLastPath(path);
+
+		if (!pathProvidedViaArgs)
+			Console.WriteLine();
 
 		switch (Path.GetExtension(path).ToLowerInvariant()) {
 			case ".ggpk":
@@ -151,6 +126,120 @@ public static class Program {
 		index.Save();
 		Console.WriteLine("Done!");
 		Console.WriteLine("中文化完成！");
+	}
+
+	private static (string? path, bool useDefaultFlag) ParseArguments(string[] args) {
+		if (args.Length == 0)
+			return (null, false);
+
+		var useDefault = false;
+		var remaining = new List<string>(args.Length);
+		foreach (var arg in args) {
+			if (string.Equals(arg, "--use-default", StringComparison.OrdinalIgnoreCase) ||
+				string.Equals(arg, "-d", StringComparison.OrdinalIgnoreCase)) {
+				useDefault = true;
+				continue;
+			}
+			remaining.Add(arg);
+		}
+
+		if (remaining.Count == 0)
+			return (null, useDefault);
+
+		var rawPath = TrimQuotes(remaining[0].Trim());
+		return (rawPath, useDefault);
+	}
+
+	private static string? TryLoadLastPath() {
+		try {
+			if (File.Exists(LastPathFile)) {
+				var stored = File.ReadAllText(LastPathFile).Trim();
+				if (!string.IsNullOrEmpty(stored)) {
+					var expanded = Utils.ExpandPath(stored);
+					if (File.Exists(expanded))
+						return expanded;
+				}
+			}
+		} catch {
+			// ignore read errors
+		}
+		return null;
+	}
+
+	private static void SaveLastPath(string path) {
+		try {
+			Directory.CreateDirectory(ConfigDirectory);
+			File.WriteAllText(LastPathFile, path);
+		} catch {
+			// ignore write errors
+		}
+	}
+
+	private static string? TryAutoDetectDefaultPath() {
+		string? appParentDir = null;
+
+		var basePath = Path.Combine(AppContext.BaseDirectory, "Content.ggpk");
+		if (File.Exists(basePath))
+			return basePath;
+
+		if (AppContext.BaseDirectory.Contains(".app/Contents/")) {
+			var appBundlePath = AppContext.BaseDirectory;
+			var appIndex = appBundlePath.IndexOf(".app/Contents/", StringComparison.Ordinal);
+			if (appIndex > 0) {
+				appParentDir = Path.GetDirectoryName(appBundlePath[..(appIndex + 4)]);
+				if (appParentDir != null) {
+					var appDirPath = Path.Combine(appParentDir, "Content.ggpk");
+					if (File.Exists(appDirPath))
+						return appDirPath;
+				}
+			}
+		}
+
+		if (appParentDir != null) {
+			var poeAppPath = Path.Combine(appParentDir, "PoE.app", "Contents", "SharedSupport", "prefix", "drive_c",
+				"Program Files (x86)", "Grinding Gear Games", "Path of Exile", "Content.ggpk");
+			if (File.Exists(poeAppPath))
+				return poeAppPath;
+		}
+
+		var cwdPath = Path.Combine(Environment.CurrentDirectory, "Content.ggpk");
+		if (File.Exists(cwdPath))
+			return cwdPath;
+
+		return null;
+	}
+
+	private static string PromptForPath(string? fallbackPath) {
+		Console.WriteLine("請輸入檔案路徑");
+		Console.Write("Path to Content.ggpk (_.index.bin for Steam/Epic)");
+		if (!string.IsNullOrWhiteSpace(fallbackPath))
+			Console.Write($" [{fallbackPath}]");
+		Console.Write(": ");
+		var input = Console.ReadLine();
+		var trimmed = TrimQuotes((input ?? string.Empty).Trim());
+		if (string.IsNullOrWhiteSpace(trimmed) && !string.IsNullOrWhiteSpace(fallbackPath))
+			return fallbackPath!;
+		return trimmed;
+	}
+
+	private static string? TrimAndExpand(string? value) {
+		if (string.IsNullOrWhiteSpace(value))
+			return null;
+		var trimmed = TrimQuotes(value.Trim());
+		return Utils.ExpandPath(trimmed);
+	}
+
+	private static string TrimQuotes(string value) {
+		if (value.Length > 1 && ((value[0] == '"' && value[^1] == '"') || (value[0] == '\'' && value[^1] == '\'')))
+			return value[1..^1].Trim();
+		return value;
+	}
+
+	private static string GetConfigDirectory() {
+		var baseDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+		if (string.IsNullOrWhiteSpace(baseDir))
+			baseDir = AppContext.BaseDirectory;
+		return Path.Combine(baseDir, "PoeChinese3");
 	}
 
 	public static unsafe void ApplyTraditionalChinese(Index index) {
