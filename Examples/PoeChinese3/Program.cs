@@ -36,36 +36,32 @@ public static class Program {
 		using (var definitions = assembly.GetManifestResourceStream("PoeChinese3.DatDefinitions.json")!)
 			DatContainer.ReloadDefinitions(definitions);
 
-		var (path, useDefaultFlag) = ParseArguments(args);
-		var pathProvidedViaArgs = path is not null;
-		if (path is null) {
-			// Args 未指定路徑，開始互動式流程
+			var (pathArg, useDefaultFlag) = ParseArguments(args);
+			var pathProvidedViaArgs = pathArg is not null;
 			var rememberedPath = TryLoadLastPath();
-			if (useDefaultFlag) {
-				path = rememberedPath ?? TryAutoDetectDefaultPath() ?? DefaultWindowsGgpkPath;
-				if (string.IsNullOrWhiteSpace(path) || !File.Exists(Utils.ExpandPath(path))) {
-					Console.WriteLine("找不到預設路徑，請改用手動輸入。");
-					path = PromptForPath(DefaultWindowsGgpkPath);
+			var autoDetectedPath = TryAutoDetectDefaultPath();
+			var fallbackPath = rememberedPath ?? autoDetectedPath ?? DefaultWindowsGgpkPath;
+
+			string? path = null;
+			if (pathArg is null) {
+				if (useDefaultFlag) {
+					path = TrimAndExpand(fallbackPath);
+					if (path is null || !File.Exists(path)) {
+						Console.WriteLine("找不到預設路徑，請改用手動輸入。");
+						path = TrimAndExpand(PromptForPath(fallbackPath));
+					} else {
+						Console.WriteLine($"使用預設路徑: {path}");
+					}
 				} else {
-					Console.WriteLine($"使用預設路徑: {path}");
+					path = TrimAndExpand(PromptForPath(fallbackPath));
 				}
 			} else {
-				path = rememberedPath;
-				if (path is null)
-					path = TryAutoDetectDefaultPath();
-
-				if (path != null) {
-					Console.WriteLine($"使用預設路徑: {path}");
-				} else {
-					path = PromptForPath(DefaultWindowsGgpkPath);
-				}
+				path = TrimAndExpand(pathArg);
 			}
-		}
 
-		path = TrimAndExpand(path);
-		if (path is null || !File.Exists(path)) {
-			Console.WriteLine("檔案不存在 (File not found): " + path);
-			Console.WriteLine();
+			if (path is null || !File.Exists(path)) {
+				Console.WriteLine("檔案不存在 (File not found): " + path);
+				Console.WriteLine();
 			Console.WriteLine("Enter to exit . . .");
 			Console.ReadLine();
 			return;
