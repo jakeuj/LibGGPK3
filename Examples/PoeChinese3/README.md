@@ -2,11 +2,19 @@
 
 流亡黯道 (Path of Exile) 繁體中文化工具 - macOS ARM64 版本
 
+## 系統需求
+
+- macOS（Apple Silicon）M 系列晶片，ARM64 架構
+
 ## 功能
 
 - 自動套用繁體中文語系
 - 內嵌思源黑體臺灣版 (Source Han Sans TW) 字型
-- 自動變更國旗圖示
+
+## 安全性與簽章
+
+- 發佈版（Release）以 Apple Developer ID Application 進行簽署，通常不會被 macOS Gatekeeper 擋下。
+- 若仍遇到阻擋，可在 Finder 右鍵選擇「打開」或使用終端機執行以繞過首次驗證。
 
 ## 使用方式
 
@@ -108,4 +116,3 @@ External/OodleUE/Engine/Source/Runtime/OodleDataCompression/Sdks/2.9.14/lib/
 - [aianlinb/LibGGPK3](https://github.com/aianlinb/LibGGPK3) - 原始專案
 - [Adobe Source Han Sans](https://github.com/adobe-fonts/source-han-sans) - 思源黑體字型
 - [WorkingRobot/OodleUE](https://github.com/WorkingRobot/OodleUE) - Oodle 壓縮庫
-
