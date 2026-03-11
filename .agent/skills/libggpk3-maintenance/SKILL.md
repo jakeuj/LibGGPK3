@@ -105,4 +105,31 @@ description: 保持 /Users/jakeuj/RiderProjects/LibGGPK3 fork 與 aianlinb/LibGG
 - **Icon 仍警告**：確認 `Icon.icns` 真有被複製到 `bin/Debug/net10.0/<App>.app/Contents/Resources/`。若無，手動 `cp Examples/Icon.icns ...` 檢查路徑。
 - **Oodle 子模組**：`External/OodleUE` 為 submodule，若缺失需 `git submodule update --init`，或在本地提供相同路徑結構。
 
-> 完成上述步驟後，LibGGPK3 fork 即可保持與上游同步、具備最新版本號並消除 macOS Icon 警告。
+## 7. PoeChinese3 桌面腳本（固定路徑）
+若玩家（含自己）已將發佈的 `PoeChinese3.app` 放在 `/Applications`，且 GGPK 放在 CrossOver Bottle（預設示範路徑：`/Users/jakeuj/Library/Application Support/CrossOver/Bottles/PoB/drive_c/Program Files (x86)/Grinding Gear Games/Path of Exile/Content.ggpk`），可提供以下桌面腳本便於一鍵中文化：
+
+```bash
+cat <<'EOF' > ~/Desktop/PoeChinese3TW.command
+#!/bin/bash
+set -euo pipefail
+GGPK_PATH='/Users/jakeuj/Library/Application Support/CrossOver/Bottles/PoB/drive_c/Program Files (x86)/Grinding Gear Games/Path of Exile/Content.ggpk'
+EXEC='/Applications/PoeChinese3.app/Contents/Resources/PoeChinese3'
+if [[ ! -f "$GGPK_PATH" ]]; then
+  osascript -e 'display alert "PoeChinese3" message "找不到 Content.ggpk\n請確認路徑是否正確"'
+  exit 1
+fi
+if [[ ! -x "$EXEC" ]]; then
+  osascript -e 'display alert "PoeChinese3" message "找不到 /Applications/PoeChinese3.app\n請先安裝中文版工具"'
+  exit 1
+fi
+"$EXEC" "$GGPK_PATH"
+EOF
+chmod +x ~/Desktop/PoeChinese3TW.command
+```
+
+重點：
+- `GGPK_PATH` 改成實際的媒體路徑即可。
+- `EXEC` 指向 `.app` 內真實執行檔，避免程式再要求輸入路徑。
+- 第一次在 Finder 執行 `.command` 檔需允許執行權限；若路徑變動，重新編輯腳本即可。
+
+> 完成上述步驟後，LibGGPK3 fork 即可保持與上游同步、具備最新版本號並消除 macOS Icon 警告，同時也能提供終端腳本快速對指定 GGPK 套用中文化。

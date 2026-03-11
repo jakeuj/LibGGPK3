@@ -32,6 +32,30 @@
 
 > 想了解本 repo 如何維持同步？可參考 `.agent/skills/libggpk3-maintenance/SKILL.md`，裡面整理了 rebase、版本調整與 Icon 修補的標準流程。
 
+### 快速啟動中文化（桌面腳本）
+若已下載此 fork 提供的 PoeChinese3 `.app` 並放到 `/Applications/PoeChinese3.app`，又確定遊戲 GGPK 存在 `'/Users/jakeuj/Library/Application Support/CrossOver/Bottles/PoB/drive_c/Program Files (x86)/Grinding Gear Games/Path of Exile/Content.ggpk'`，可建立桌面腳本一鍵執行：
+
+```bash
+cat <<'EOF' > ~/Desktop/PoeChinese3TW.command
+#!/bin/bash
+set -euo pipefail
+GGPK_PATH='/Users/jakeuj/Library/Application Support/CrossOver/Bottles/PoB/drive_c/Program Files (x86)/Grinding Gear Games/Path of Exile/Content.ggpk'
+EXEC='/Applications/PoeChinese3.app/Contents/Resources/PoeChinese3'
+if [[ ! -f "$GGPK_PATH" ]]; then
+  osascript -e 'display alert "PoeChinese3" message "找不到 Content.ggpk\n請確認路徑是否正確"'
+  exit 1
+fi
+if [[ ! -x "$EXEC" ]]; then
+  osascript -e 'display alert "PoeChinese3" message "找不到 /Applications/PoeChinese3.app\n請先安裝中文版工具"'
+  exit 1
+fi
+"$EXEC" "$GGPK_PATH"
+EOF
+chmod +x ~/Desktop/PoeChinese3TW.command
+```
+
+之後在 Finder 雙擊 `PoeChinese3TW.command` 即可自動以固定 GGPK 路徑執行中文化；若日後路徑改變，更新腳本內的 `GGPK_PATH` 即可。
+
 ## 注意事項
 - 未經授權禁止修改、再散佈或商業使用；如需合作請先聯絡作者。
 - 此儲存庫中的專案可能非完全 thread-safe，若多執行緒同時操作同一個 ggpk，請格外小心（建議自行加鎖或分批處理）。
