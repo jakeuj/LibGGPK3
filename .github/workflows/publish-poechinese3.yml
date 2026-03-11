@@ -192,4 +192,4 @@ jobs:
         with:
           files: PoeChinese3-osx-arm64.zip
           draft: false
-          prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') }}
+          prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') || contains(github.ref, 'test') }}
