@@ -4,6 +4,14 @@
 這是一套跨平台函式庫，專門處理《流亡黯道》（Path of Exile）的 `Content.ggpk`。  
 原始版本重寫自：https://github.com/aianlinb/LibGGPK2
 
+### 贊助 / Sponsorship
+This project is a fork of [aianlinb/LibGGPK3](https://github.com/aianlinb/LibGGPK3)。  
+如果你想支持原作者（aianlinb），請透過 PayPal 贊助：<https://paypal.me/aianlinb>。  
+If you want to support the original author, please sponsor them here: <https://paypal.me/aianlinb>.
+
+如果你想支持本 Fork（jakeuj）的長期維護，歡迎透過 PayPal 贊助：<https://paypal.me/jakeuj>。  
+If you want to support this fork's maintenance, you can sponsor me here: <https://paypal.me/jakeuj>.
+
 ## 關於此 Fork（jakeuj）
 本庫定期以 `git fetch upstream && git rebase upstream/main` 方式追蹤 [aianlinb/LibGGPK3](https://github.com/aianlinb/LibGGPK3)。這個 fork 著重於台灣玩家與 macOS ARM 使用者，與上游的主要差異如下：
 - **Target Framework 與版本**：預設 `net10.0`，並採 `2.7.5-fork.1`（`AssemblyVersion/FileVersion 2.7.5.1`）版號，以便在保持與上游 2.7.5 資源同步的同時，輸出 macOS ARM NativeAOT 執行檔。
