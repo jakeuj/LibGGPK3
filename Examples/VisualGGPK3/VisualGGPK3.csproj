@@ -5,6 +5,10 @@
 		<EmbeddedResource Include="Resources/file.ico" />
 		<ProjectReference Include="../../LibBundledGGPK3/LibBundledGGPK3.csproj" />
 		<PackageReference Include="Pfim" Version="*" />
+		<Content Include="../Icon.icns">
+			<Link>Icon.icns</Link>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
 	</ItemGroup>
 
 	<Import Project="../EtoForms.props" />
