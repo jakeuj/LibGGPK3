@@ -56,6 +56,8 @@ If you want to support this fork's maintenance, you can sponsor me here: <https:
 ./PoeChinese3 -d
 ```
 
+> 既然 CLI/.app 會記住上次成功的 GGPK 路徑並可用 `--use-default` 套用預設，就不再建議透過桌面腳本硬寫固定路徑；請直接使用旗標或回憶檔案即可。
+
 ### 內建字型（免改 `Font.ttf`）
 
 上游說明文件會要求 macOS 使用者先找任意中文字型，改名為 `Font.ttf` 後放在 `PoeChinese_osx-x64` 或 CLI 執行檔旁。本 fork 直接把 Source Han Sans TW（思源黑體台灣版）打包進 PoeChinese3，因此：
@@ -64,30 +66,6 @@ If you want to support this fork's maintenance, you can sponsor me here: <https:
 - 若想換成自備字型，只要把 `Font.ttc`／`Font.ttf`／`Font.otf` 放在執行檔同層即可覆蓋，詳細流程見 `Examples/PoeChinese3/README.md` 的「自訂字型」章節。
 
 也因此 README 與 GitHub Pages 皆標示出「fork 版內建字型，上游仍需自行準備」的差異，方便玩家判斷。
-
-### 快速啟動中文化（桌面腳本）
-若已下載此 fork 提供的 PoeChinese3 `.app` 並放到 `/Applications/PoeChinese3.app`，又確定遊戲 GGPK 存在 `'/Users/jakeuj/Library/Application Support/CrossOver/Bottles/PoB/drive_c/Program Files (x86)/Grinding Gear Games/Path of Exile/Content.ggpk'`，可建立桌面腳本一鍵執行：
-
-```bash
-cat <<'EOF' > ~/Desktop/PoeChinese3TW.command
-#!/bin/bash
-set -euo pipefail
-GGPK_PATH='/Users/jakeuj/Library/Application Support/CrossOver/Bottles/PoB/drive_c/Program Files (x86)/Grinding Gear Games/Path of Exile/Content.ggpk'
-EXEC='/Applications/PoeChinese3.app/Contents/Resources/PoeChinese3'
-if [[ ! -f "$GGPK_PATH" ]]; then
-  osascript -e 'display alert "PoeChinese3" message "找不到 Content.ggpk\n請確認路徑是否正確"'
-  exit 1
-fi
-if [[ ! -x "$EXEC" ]]; then
-  osascript -e 'display alert "PoeChinese3" message "找不到 /Applications/PoeChinese3.app\n請先安裝中文版工具"'
-  exit 1
-fi
-"$EXEC" "$GGPK_PATH"
-EOF
-chmod +x ~/Desktop/PoeChinese3TW.command
-```
-
-之後在 Finder 雙擊 `PoeChinese3TW.command` 即可自動以固定 GGPK 路徑執行中文化；若日後路徑改變，更新腳本內的 `GGPK_PATH` 即可。
 
 ## 注意事項
 - 未經授權禁止修改、再散佈或商業使用；如需合作請先聯絡作者。

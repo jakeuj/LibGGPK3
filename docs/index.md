@@ -74,28 +74,13 @@ title: LibGGPK3 Fork / Github Pages
 ./PoeChinese3 -d
 ```
 
+> 由於 CLI 會自動記憶 GGPK 路徑並可用 `--use-default`/`-d` 套用，不再提供過去那種固定路徑的 macOS 腳本範例。
+
 ## 內建字型（免 `Font.ttf` 手動複製）
 
 - 上游的 macOS 指引會要求先找到一份中文字型，改名為 `Font.ttf` 並放在 `PoeChinese_osx-x64` 旁邊才有字形。
 - 本 fork 把 Source Han Sans TW 打包在 `.app` 及 CLI 中，不需額外操作即可顯示繁中。
 - 如需替換，只要把 `Font.ttc`／`Font.ttf`／`Font.otf` 放在執行檔旁，會優先使用自訂字型。
-
-## macOS 快捷腳本（固定 GGPK 路徑）
-
-```bash
-cat <<'EOS' > ~/Desktop/PoeChinese3TW.command
-#!/bin/bash
-set -euo pipefail
-GGPK_PATH='/Users/<你自己的路徑>/Content.ggpk'
-EXEC='/Applications/PoeChinese3.app/Contents/Resources/PoeChinese3'
-if [[ ! -f "$GGPK_PATH" ]]; then
-  osascript -e 'display alert "PoeChinese3" message "找不到 Content.ggpk"'
-  exit 1
-fi
-"$EXEC" "$GGPK_PATH"
-EOS
-chmod +x ~/Desktop/PoeChinese3TW.command
-```
 
 ## 維護排程
 
