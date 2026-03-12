@@ -4,6 +4,8 @@
 這是一套跨平台函式庫，專門處理《流亡黯道》（Path of Exile）的 `Content.ggpk`。  
 原始版本重寫自：https://github.com/aianlinb/LibGGPK2
 
+繁體中文化入口網站（PoeChinese）：https://poechinese.jakeuj.com/
+
 ### 贊助 / Sponsorship
 This project is a fork of [aianlinb/LibGGPK3](https://github.com/aianlinb/LibGGPK3)。  
 如果你想支持原作者（aianlinb），請透過 PayPal 贊助：<https://paypal.me/aianlinb>。  
