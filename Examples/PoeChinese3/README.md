@@ -10,6 +10,7 @@
 
 - 自動套用繁體中文語系
 - 內嵌思源黑體臺灣版 (Source Han Sans TW) 字型
+- 相較上游需自行準備 `Font.ttf`，本 fork 內建字型可直接使用；若想自訂，仍可放置 `Font.ttc`/`Font.ttf`/`Font.otf` 覆蓋。
 
 ## 安全性與簽章
 
@@ -52,7 +53,7 @@ CrossOver/Wine 安裝的 PoE：
 
 ## 自訂字型
 
-程式會按以下順序尋找字型：
+程式已內建 Source Han Sans TW，因此 macOS 玩家不再需要像上游一樣手動複製 `Font.ttf`。若要改用自己的字型，程式會按以下順序尋找：
 1. `Font.ttc`（使用者自訂）
 2. `Font.ttf`（使用者自訂）
 3. `Font.otf`（使用者自訂）

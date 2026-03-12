@@ -15,7 +15,7 @@ If you want to support this fork's maintenance, you can sponsor me here: <https:
 ## 關於此 Fork（jakeuj）
 本庫定期以 `git fetch upstream && git rebase upstream/main` 方式追蹤 [aianlinb/LibGGPK3](https://github.com/aianlinb/LibGGPK3)。這個 fork 著重於台灣玩家與 macOS ARM 使用者，與上游的主要差異如下：
 - **Target Framework 與版本**：預設 `net10.0`，並採 `2.7.5-fork.1`（`AssemblyVersion/FileVersion 2.7.5.1`）版號，以便在保持與上游 2.7.5 資源同步的同時，輸出 macOS ARM NativeAOT 執行檔。
-- **在地化強化**：PoeChinese3 內建思源黑體（Source Han Sans TW），更新版權資訊，並提升 macOS .app 內自動偵測 Content.ggpk 的行為。
+- **在地化強化**：PoeChinese3 內建思源黑體（Source Han Sans TW），更新版權資訊，並提升 macOS .app 內自動偵測 Content.ggpk 的行為；上游需要自行把任意中文字型改名為 `Font.ttf` 放在執行檔旁，本 fork 不再需要手動拷貝字型。
 - **NativeAOT 發佈管線**：`Directory.Build.props` 內含 AOT 最佳化設定（停用 debug/doc 檔、Strip 符號、連結 Oodle 靜態庫），同時僅在非 AOT 執行檔才複製動態庫，縮小包體。
 - **macOS 體驗修復**：`VisualGGPK3`／`VPatchGGPK3` 會在建置時自動複製 `Icon.icns`，避免 Eto.Mac 的 “Icon.icns does not exist” 警告並產生帶有圖示的 `.app`。
 - **PoeChinese3 互動升級**：CLI 與 `.app` 會記住上次成功中文化的 GGPK 路徑（儲存於 `%APPDATA%/PoeChinese3/lastpath.txt`，macOS 為 `~/Library/Application Support/PoeChinese3/lastpath.txt`），並新增 `--use-default`/`-d` 旗標，一鍵載入記憶路徑或預設 Windows 安裝路徑。
@@ -55,6 +55,15 @@ If you want to support this fork's maintenance, you can sponsor me here: <https:
 # 或
 ./PoeChinese3 -d
 ```
+
+### 內建字型（免改 `Font.ttf`）
+
+上游說明文件會要求 macOS 使用者先找任意中文字型，改名為 `Font.ttf` 後放在 `PoeChinese_osx-x64` 或 CLI 執行檔旁。本 fork 直接把 Source Han Sans TW（思源黑體台灣版）打包進 PoeChinese3，因此：
+
+- 完整下載這個 fork 的 `.app` / CLI 可立即顯示繁體中文，不需再手動複製或改名字型檔。
+- 若想換成自備字型，只要把 `Font.ttc`／`Font.ttf`／`Font.otf` 放在執行檔同層即可覆蓋，詳細流程見 `Examples/PoeChinese3/README.md` 的「自訂字型」章節。
+
+也因此 README 與 GitHub Pages 皆標示出「fork 版內建字型，上游仍需自行準備」的差異，方便玩家判斷。
 
 ### 快速啟動中文化（桌面腳本）
 若已下載此 fork 提供的 PoeChinese3 `.app` 並放到 `/Applications/PoeChinese3.app`，又確定遊戲 GGPK 存在 `'/Users/jakeuj/Library/Application Support/CrossOver/Bottles/PoB/drive_c/Program Files (x86)/Grinding Gear Games/Path of Exile/Content.ggpk'`，可建立桌面腳本一鍵執行：

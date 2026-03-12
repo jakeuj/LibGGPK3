@@ -14,7 +14,7 @@ title: LibGGPK3 Fork / Github Pages
 | Target Framework | 預設 `net10.0`，持續追蹤 .NET 最新長期支援版本 | 多目標（`net8.0`/`net9.0`）為主 |
 | 版本策略 | `2.7.5-fork.1`（`AssemblyVersion 2.7.5.1`），確保 macOS ARM NativeAOT 二進位可辨識 | `2.7.5` | 
 | 發佈管線 | 針對 macOS ARM，Strip 符號、動態複製 Icon、OodleUE 子模組預載 | 以 Windows / x64 為主 |
-| 使用者體驗 | PoeChinese3 內建 Source Han Sans TW、macOS 自動偵測 `Content.ggpk` | 無在地化增強 |
+| 使用者體驗 | PoeChinese3 內建 Source Han Sans TW（免手動改 `Font.ttf`）、macOS 自動偵測 `Content.ggpk` | 需自行準備中文字型並改名為 `Font.ttf` |
 | CI/CD | Fork 專屬 GitHub Actions、Release Drafter、簽署 macOS bundle | 預設 CI |
 
 ## 最新穩定版
@@ -73,6 +73,12 @@ title: LibGGPK3 Fork / Github Pages
 # 或
 ./PoeChinese3 -d
 ```
+
+## 內建字型（免 `Font.ttf` 手動複製）
+
+- 上游的 macOS 指引會要求先找到一份中文字型，改名為 `Font.ttf` 並放在 `PoeChinese_osx-x64` 旁邊才有字形。
+- 本 fork 把 Source Han Sans TW 打包在 `.app` 及 CLI 中，不需額外操作即可顯示繁中。
+- 如需替換，只要把 `Font.ttc`／`Font.ttf`／`Font.otf` 放在執行檔旁，會優先使用自訂字型。
 
 ## macOS 快捷腳本（固定 GGPK 路徑）
 
