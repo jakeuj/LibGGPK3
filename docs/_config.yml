@@ -1,0 +1,9 @@
+title: LibGGPK3 Fork Roadmap
+lang: zh-TW
+description: >-
+  追蹤 jakeuj fork 與 aianlinb/LibGGPK3 的差異、macOS ARM 流程與 NativeAOT build 策略。
+theme: jekyll-theme-cayman
+markdown: GFM
+show_downloads: false
+plugins:
+  - jekyll-seo-tag
