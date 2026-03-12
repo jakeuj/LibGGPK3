@@ -1,3 +1,11 @@
 <link rel="icon" type="image/png" sizes="512x512" href="{{ '/assets/img/favicon.png' | relative_url }}">
 <link rel="apple-touch-icon" href="{{ '/assets/img/favicon.png' | relative_url }}">
 <meta name="theme-color" content="#132743">
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var footerOwner = document.querySelector('.site-footer-owner');
+  if (footerOwner) {
+    footerOwner.innerHTML = 'LibGGPK3 原始作者 <a href="https://github.com/aianlinb" target="_blank" rel="noopener">aianlinb</a>；本 fork 維護者 <a href="https://github.com/jakeuj" target="_blank" rel="noopener">jakeuj</a>';
+  }
+});
+</script>
