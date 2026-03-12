@@ -18,6 +18,7 @@ If you want to support this fork's maintenance, you can sponsor me here: <https:
 - **在地化強化**：PoeChinese3 內建思源黑體（Source Han Sans TW），更新版權資訊，並提升 macOS .app 內自動偵測 Content.ggpk 的行為。
 - **NativeAOT 發佈管線**：`Directory.Build.props` 內含 AOT 最佳化設定（停用 debug/doc 檔、Strip 符號、連結 Oodle 靜態庫），同時僅在非 AOT 執行檔才複製動態庫，縮小包體。
 - **macOS 體驗修復**：`VisualGGPK3`／`VPatchGGPK3` 會在建置時自動複製 `Icon.icns`，避免 Eto.Mac 的 “Icon.icns does not exist” 警告並產生帶有圖示的 `.app`。
+- **PoeChinese3 互動升級**：CLI 與 `.app` 會記住上次成功中文化的 GGPK 路徑（儲存於 `%APPDATA%/PoeChinese3/lastpath.txt`，macOS 為 `~/Library/Application Support/PoeChinese3/lastpath.txt`），並新增 `--use-default`/`-d` 旗標，一鍵載入記憶路徑或預設 Windows 安裝路徑。
 - **CI/CD 與釋出**：Fork 專屬 GitHub Actions、release drafter 與 README/系統需求說明（可參考 2025 年 12 月的提交紀錄）都針對台灣社群發佈簽署二進位檔。
 
 ### Fork 環境初始化與建置
@@ -39,6 +40,21 @@ If you want to support this fork's maintenance, you can sponsor me here: <https:
 5. 遇到 macOS bundle 缺圖示警告時，確認 `Examples/Icon.icns` 是否已被複製到 `bin/Debug/net10.0/<App>.app/Contents/Resources/`。
 
 > 想了解本 repo 如何維持同步？可參考 `.agent/skills/libggpk3-maintenance/SKILL.md`，裡面整理了 rebase、版本調整與 Icon 修補的標準流程。
+
+### PoeChinese3 路徑記憶與 `--use-default`
+自 2026-03-11 的 `b92df07e75dcd11de836346443457a3e0a1bfa74` 提交起，PoeChinese3 的 CLI/.app 具備以下行為，減少手動輸入 GGPK 路徑的頻率：
+
+- 每次成功中文化後，會把實際使用的 GGPK 路徑寫入 `%APPDATA%/PoeChinese3/lastpath.txt`（macOS 為 `~/Library/Application Support/PoeChinese3/lastpath.txt`）。下次啟動時會優先使用此路徑並驗證檔案存在。
+- 新增 `--use-default`（或縮寫 `-d`）旗標，可直接強制使用「記憶路徑 → 自動偵測 → Windows 預設 `C:\Program Files (x86)\Grinding Gear Games\Path of Exile\Content.ggpk`」的順序，跳過互動式輸入。
+- 沒有旗標時，互動流程仍會嘗試以下預設：執行檔所在資料夾、`.app` 同層的 `Content.ggpk`、`PoE.app`（Wineskin/CrossOver）的 bundle、目前工作目錄，再退回到記憶路徑與提示輸入。
+
+範例：直接沿用上次路徑或預設值。
+
+```bash
+./PoeChinese3 --use-default
+# 或
+./PoeChinese3 -d
+```
 
 ### 快速啟動中文化（桌面腳本）
 若已下載此 fork 提供的 PoeChinese3 `.app` 並放到 `/Applications/PoeChinese3.app`，又確定遊戲 GGPK 存在 `'/Users/jakeuj/Library/Application Support/CrossOver/Bottles/PoB/drive_c/Program Files (x86)/Grinding Gear Games/Path of Exile/Content.ggpk'`，可建立桌面腳本一鍵執行：

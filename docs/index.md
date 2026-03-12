@@ -24,6 +24,7 @@ title: LibGGPK3 Fork / Github Pages
 - 主要更新：
   - NativeAOT build pipeline 更新，macOS `.app` 自動複製 `Icon.icns`，避免 Eto.Mac 警告。
   - README、系統需求與中文說明同步。
+  - `PoeChinese3` 記住上次 GGPK 路徑並新增 `--use-default`/`-d` 旗標（commit `b92df07e75dcd11de836346443457a3e0a1bfa74`，2026-03-11）。
   - 長期追蹤上游 `LibGGPK3` commit，確保資料結構維持最新。
 
 ## 快速安裝與同步
@@ -60,6 +61,18 @@ title: LibGGPK3 Fork / Github Pages
    install -m 0644 Examples/Icon.icns \
      bin/Release/net10.0/osx-arm64/publish/PoeChinese3.app/Contents/Resources/Icon.icns
    ```
+
+## PoeChinese3 路徑記憶與 `--use-default`
+
+- 自 2026-03-11 的 `b92df07e75dcd11de836346443457a3e0a1bfa74` 起，`PoeChinese3` 會把成功中文化使用的 GGPK 路徑寫入 `%APPDATA%/PoeChinese3/lastpath.txt`（macOS 為 `~/Library/Application Support/PoeChinese3/lastpath.txt`），下次啟動自動帶入。
+- `--use-default` / `-d` 旗標會套用「記憶路徑 → 自動偵測（.app 同層、`PoE.app`、目前目錄）→ Windows 預設 `C:\Program Files (x86)\Grinding Gear Games\Path of Exile\Content.ggpk`」，完全跳過互動輸入。
+- 未加旗標但資料存在時，CLI 會直接顯示「使用預設路徑」，僅在檔案不存在時退回互動式輸入。
+
+```bash
+./PoeChinese3 --use-default
+# 或
+./PoeChinese3 -d
+```
 
 ## macOS 快捷腳本（固定 GGPK 路徑）
 

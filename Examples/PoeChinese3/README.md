@@ -29,6 +29,20 @@
 ./PoeChinese3 "/path/to/Content.ggpk"
 ```
 
+### 方式三：沿用記憶路徑 (`--use-default`)
+
+自 2026-03-11 的 `b92df07e75dcd11de836346443457a3e0a1bfa74` 開始，PoeChinese3 會記住最後一次成功中文化時的 GGPK 路徑，並提供 `--use-default`（或 `-d`）旗標快速使用：
+
+- 路徑會寫入 `%APPDATA%/PoeChinese3/lastpath.txt`（macOS 在 `~/Library/Application Support/PoeChinese3/lastpath.txt`）。
+- 啟動時會依序檢查：記憶路徑 → `.app`/執行檔同層的 `Content.ggpk` → `PoE.app` bundle（CrossOver/Wineskin）→ 目前工作目錄 → Windows 預設 `C:\Program Files (x86)\Grinding Gear Games\Path of Exile\Content.ggpk`。
+- 若路徑失效才會回到互動式輸入。
+
+```bash
+./PoeChinese3 --use-default
+# 或
+./PoeChinese3 -d
+```
+
 ### macOS 範例路徑
 
 CrossOver/Wine 安裝的 PoE：
